@@ -1,0 +1,70 @@
+router bgp 54
+ no synchronization
+ bgp log-neighbor-changes
+ neighbor RACKS peer-group
+ neighbor RACKS remote-as 100
+ neighbor 2001:54:1:2::6 remote-as 100
+ neighbor 2001:54:1:4::6 remote-as 100
+ neighbor 2001:54:254:1::6 remote-as 100
+ neighbor 2001:172:16:4::3 remote-as 54
+ neighbor 54.1.1.6 peer-group RACKS
+ neighbor 54.1.2.6 peer-group RACKS
+ neighbor 54.1.3.6 peer-group RACKS
+ neighbor 54.1.4.6 peer-group RACKS
+ neighbor 54.1.5.6 peer-group RACKS
+ neighbor 54.1.6.6 peer-group RACKS
+ neighbor 54.1.7.6 peer-group RACKS
+ neighbor 54.1.8.6 peer-group RACKS
+ neighbor 54.1.10.100 peer-group RACKS
+ neighbor 172.16.4.3 remote-as 54
+ no auto-summary
+ !
+ address-family ipv4 multicast
+ no auto-summary
+ no synchronization
+ exit-address-family
+ !
+ address-family ipv6
+ neighbor 2001:54:1:2::6 activate
+ neighbor 2001:54:1:4::6 activate
+ neighbor 2001:54:254:1::6 activate
+ neighbor 2001:172:16:4::3 activate
+ network 2001:254:0:112::1/64
+ network 2001:254:0:113::1/64
+ network 2001:254:0:114::1/64
+ network 2001:254:0:115::1/96
+ exit-address-family
+ !
+ address-family ipv4
+ neighbor RACKS activate
+ neighbor RACKS send-community
+ neighbor RACKS route-map BGP_IN in
+ neighbor RACKS route-map BGP_OUT out
+ no neighbor 2001:54:1:2::6 activate
+ no neighbor 2001:54:1:4::6 activate
+ no neighbor 2001:54:254:1::6 activate
+ no neighbor 2001:172:16:4::3 activate
+ neighbor 54.1.1.6 peer-group RACKS
+ neighbor 54.1.2.6 peer-group RACKS
+ neighbor 54.1.3.6 peer-group RACKS
+ neighbor 54.1.4.6 peer-group RACKS
+ neighbor 54.1.5.6 peer-group RACKS
+ neighbor 54.1.6.6 peer-group RACKS
+ neighbor 54.1.7.6 peer-group RACKS
+ neighbor 54.1.8.6 peer-group RACKS
+ neighbor 54.1.10.100 peer-group RACKS
+ neighbor 172.16.4.3 activate
+ neighbor 172.16.4.3 next-hop-self
+ neighbor 172.16.4.3 send-community
+ no auto-summary
+ no synchronization
+ network 112.0.0.0
+ network 113.0.0.0
+ network 114.0.0.0 route-map SET_COMMUNITY_54
+ network 115.0.0.0 route-map SET_COMMUNITY_54
+ network 116.0.0.0
+ network 117.0.0.0
+ network 118.0.0.0
+ network 119.0.0.0
+ exit-address-family
+!
