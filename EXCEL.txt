@@ -1,0 +1,229 @@
+#!/bin/bash
+
+echo `date`+": Starting Script..."
+
+#Getting folder name from user
+echo "Enter Folder Name where log files are located : "
+read folder
+
+#echo $folder
+#Moving working directory to new folder
+
+
+
+
+######################################################################################################
+##########################   HK CHECk  ###############################################################
+######################################################################################################
+echo `date`+": Verifying HK Interface Checks..."
+cd ../$folder
+#Moving working directory to HK
+cd HK
+
+
+#Verifying show interface and show process
+HK_HTML="<HTML><HEAD><TITLE></TITLE><style> table, td, th {
+    border: 1px solid green;
+}
+
+th {
+    background-color: green;
+    color: white;
+}   </style> </HEAD> <BODY> <font color=red>If you find any field blank, it is because health-check script did not log the output correctly to log files. In such cases, login to specific device and have a manual check</font><div> <TABLE border="1"> <tr> <td>Interface Check - Hong Kong </td> </tr> <tr> <th><B> HOSTNAME </th> <th> <B>INTERFACE </th> <th> <B>INTF STATUS </th> <th><B> PROTOCOL STATUS</th> <th><B> TX LOAD </th> <th><B> RX LOAD </B></th>" 
+
+for file in *.txt; do
+    
+    while IFS= read -r line; do
+        if [[ $line =~ .*"#show interface".* ]]
+        then
+            device=`echo $line | cut -d '#' -f1`
+            interface=`echo $line | cut -d ' ' -f3-4`
+            read -r line
+            status1=`echo $line | cut -d ',' -f1`
+            status2=`echo $line | cut -d ',' -f2`
+            status1=`echo $status1 | sed 's/.*is //'`
+            status2=`echo $status2 | sed 's/.*is //'`
+            read -r line
+            read -r line
+            read -r line
+            read -r line
+            read -r line
+            
+            txload=`echo $line | cut -d ',' -f2 | cut -d ' ' -f3`
+            rxload=`echo $line | cut -d ',' -f3 | cut -d ' ' -f3`
+            #read -r line
+            #desc=`echo $line | sed 's/Description://' `
+            #output="$output | $device \t| $interface | $status1, $status2 \t\n"
+            TABLE="$TABLE <tr><td> $device </td> <td> $interface </td> <td> $status1 </td> <td> $status2</td> <td> $txload </td> <td> $rxload </td></tr>"
+        fi
+
+    done < "$file"
+
+done
+HK_HTML="$HK_HTML $TABLE </TABLE></div><BR><BR> <div><TABLE border="1">
+<tr>
+<td> Ping Test - Hong Kong </td>
+</tr>
+
+<tr>
+<th><B> HOSTNAME </th> <th> <B>TEST </th> <th> <B>SUCCESS % </th> <th><B> LATENCY 
+
+</B></td>"
+
+####HK PING RESULT
+echo `date`+": Verifying HK Ping Test..."
+cd Ping
+
+
+for file in *.txt; do
+
+        while IFS= read -r line; do
+                if [[ $line =~ .*"#ping".* ]]
+                then
+                        device=`echo $line | cut -d '#' -f1`
+                        test=`echo $line | cut -d '#' -f2`
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+            echo $line | grep -iq "Success rate is"
+                        if [[ $? -ne 0 ]]
+                        then
+                                read -r line
+                        fi
+            success=`echo $line | cut -d ' ' -f4`
+            latency=`echo $line | cut -d ' ' -f10-11`
+                        TABLE1="$TABLE1 <tr><td> $device </td> <td> $test </td> <td> $success </td> <td> $latency </td></tr>"
+                fi
+        done < "$file"
+
+done
+
+
+HK_HTML="$HK_HTML  $TABLE1 </TABLE></div>"
+
+
+
+######## Ending HK 
+HK_HTML="$HK_HTML <BODY></HTML>"
+cd "../../../verify"
+filename=`date +"%m-%d-%y"_"%T"`
+HK_filepath="output/"HK_$filename."html" 
+echo -e "$HK_HTML" > "$HK_filepath"
+
+######################################################################################################
+##########################   SG CHECK  ###############################################################
+######################################################################################################
+
+
+
+#Moving working directory to SG 
+cd ../$folder/SG/
+
+
+#Verifying show interface and show process
+
+echo `date`+": Verifying SG Interface Check..."
+
+SG_HTML="<HTML><HEAD><TITLE></TITLE><style> table, td, th {
+    border: 1px solid green;
+}
+
+th {
+    background-color: green;
+    color: white;
+}   </style> </HEAD> <BODY> <font color=red>If you find any field blank, it is because health-check script did not log the output correctly to log files. In such cases, login to specific device and have a manual check</font><div> <TABLE border="1"> <tr> <td>Interface Check - Hong Kong </td> </tr> <tr> <th><B> HOSTNAME </th> <th> <B>INTERFACE </th> <th> <B>INTF STATUS </th> <th><B> PROTOCOL STATUS</th> <th><B> TX LOAD </th> <th><B> RX LOAD </B></th>" 
+
+
+for file in *.txt; do
+
+        while IFS= read -r line; do
+                if [[ $line =~ .*"#show interface".* ]]
+                then
+                        device=`echo $line | cut -d '#' -f1`
+                        interface=`echo $line | cut -d ' ' -f3-4`
+                        read -r line
+                        status1=`echo $line | cut -d ',' -f1`
+                        status2=`echo $line | cut -d ',' -f2`
+                        status1=`echo $status1 | sed 's/.*is //'`
+                        status2=`echo $status2 | sed 's/.*is //'`
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+
+                        txload=`echo $line | cut -d ',' -f2 | cut -d ' ' -f3`
+                        rxload=`echo $line | cut -d ',' -f3 | cut -d ' ' -f3`
+                        #read -r line
+                        #desc=`echo $line | sed 's/Description://' `
+                        #output="$output | $device \t| $interface | $status1, $status2 \t\n"
+                        TABLE2="$TABLE2 <tr><td> $device </td> <td> $interface </td> <td> $status1 </td> <td> $status2</td> <td> $txload </td> <td> $rxload </td></tr>"
+                fi
+
+        done < "$file"
+
+done
+SG_HTML="$SG_HTML $TABLE2 </TABLE></div><BR><BR> <div><TABLE border="1">
+<tr>
+<td> Ping Test - Singapore </td>
+</tr>
+
+<tr>
+<th><B> HOSTNAME </th> <th> <B>TEST </th> <th> <B>SUCCESS % </th> <th><B> LATENCY
+
+</B></td>"
+
+
+
+#### SG PING RESULT
+
+echo `date`+": Verifying SG Ping Test ..."
+cd Ping
+
+
+for file in *.txt; do
+
+        while IFS= read -r line; do
+                if [[ $line =~ .*"#ping".* ]]
+                then
+                        device=`echo $line | cut -d '#' -f1`
+                        test=`echo $line | cut -d '#' -f2`
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+                        read -r line
+                        echo $line | grep -iq "Success rate is"
+                        if [[ $? -ne 0 ]]
+                        then
+                                read -r line
+                        fi
+                        success=`echo $line | cut -d ' ' -f4`
+                        latency=`echo $line | cut -d ' ' -f10-11` 
+
+            TABLE3="$TABLE3 <tr><td> $device </td> <td> $test </td> <td> $success </td> <td> $latency </td></tr>"
+                fi
+        done < "$file"
+
+done
+
+
+SG_HTML="$SG_HTML  $TABLE3 </TABLE></div>"
+
+
+echo `date`+": Creating Result File ..."
+
+######## Ending SG 
+HK_HTML="$HK_HTML <BODY></HTML>"
+cd "../../../verify"
+SG_filename=`date +"%m-%d-%y"_"%T"`
+SG_filepath="output/"SG_$filename."html"
+echo -e "$SG_HTML" > "$SG_filepath"
+
+
+echo `date`+": Open below files in browser for verifying the result"
+echo "HK - $HK_filepath" 
+echo "SG - $SG_filepath" 
+
